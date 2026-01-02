@@ -1,10 +1,6 @@
 "use client"
 import React, { useEffect, useRef, useState } from 'react';
 import { Grid3x3, Plus } from 'lucide-react';
-import gsap from 'gsap';
-import ScrollTrigger from 'gsap/dist/ScrollTrigger';
-
-    gsap.registerPlugin(ScrollTrigger);
 
 const OurMethod = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -39,8 +35,6 @@ const OurMethod = () => {
   ];
 
   useEffect(() => {
-
-
     const handleScroll = () => {
       if (containerRef.current) {
         const container = containerRef.current;
@@ -103,6 +97,9 @@ const OurMethod = () => {
     const rad = (normalizedAngle * Math.PI) / 180;
     const x = Math.cos(rad) * radiusX;
     const y = Math.sin(rad) * radiusY;
+    const z = Math.sin(rad) * 300; // Add depth dimension
+
+    const rotateY = -(normalizedAngle - 90); // Rotate cards to face center
 
     const centerAngle = 90;
     let distanceFromCenter = Math.abs(normalizedAngle - centerAngle);
@@ -142,7 +139,7 @@ const OurMethod = () => {
     const zIndex = Math.floor(100 - distanceFromCenter);
 
     return {
-      transform: `translate(${x}px, ${y}px) scale(${scale})`,
+      transform: `translate3d(${x}px, ${y}px, ${z}px) rotateY(${rotateY}deg) scale(${scale})`,
       opacity: opacity,
       filter: `blur(${blur}px)`,
       zIndex: zIndex,
@@ -152,7 +149,7 @@ const OurMethod = () => {
 
   return (
     <div ref={containerRef} className='w-full h-[550vh] block bg-zinc-900'>
-      <div className='sticky top-0 w-full h-screen flex items-center justify-center overflow-hidden'>
+      <div className='sticky top-0 w-full h-screen flex items-center justify-center overflow-hidden' style={{ perspective: '2000px' }}>
         
         <div className='absolute z-[-10] pointer-events-none'>
           <img
@@ -162,7 +159,7 @@ const OurMethod = () => {
           />
         </div>
 
-        <div className='relative w-full h-full flex items-center justify-center'>
+        <div className='relative  w-full h-full flex items-center justify-center' style={{ transformStyle: 'preserve-3d' }}>
           {cards.map((card, index) => (
             <div
               key={index}
@@ -171,14 +168,14 @@ const OurMethod = () => {
               onMouseEnter={handleCardMouseEnter}
               onMouseLeave={handleCardMouseLeave}
             >
-              <div className='w-[21vmax] flex flex-col items-center justify-between h-[27vmax]'>
+              <div className='w-[19vmax] flex flex-col items-center justify-between h-[25vmax]'>
                 <div className='w-full flex text-[1.1vmax] justify-between'>
                   <Plus className='plusIcon text-[#545840]' />
                   <Plus className='plusIcon text-[#545840]' />
                 </div>
 
                 <div>
-                  <div className='bg-gradient-to-br from-lime-100 to-lime-200 p-4 shadow-2xl w-[19vmax] h-[25vmax] flex flex-col'>
+                  <div className='bg-gradient-to-br from-lime-100 to-lime-200 p-4 shadow-2xl w-[18vmax] h-[25vmax] flex flex-col'>
                     <div className='flex items-center mb-1 gap-5'>
                       <div className='text-4xl text-[#545840]'>
                         <Grid3x3 />
