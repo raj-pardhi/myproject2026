@@ -4,8 +4,7 @@ import Script from 'next/script'
 
 const GridAnimation = () => {
     const mainRef = useRef(null)
-    const scriptsLoadedCount = useRef(0)
-    const totalScripts = 4
+    const animationInitialized = useRef(false)
 
     // Utils functions
     const preloadImages = (selector = 'img') => {
@@ -20,6 +19,11 @@ const GridAnimation = () => {
 
     // Initialize animations
     const initializeAnimations = () => {
+        if (animationInitialized.current) {
+            console.log('Animations already initialized, skipping...');
+            return;
+        }
+
         console.log('Initializing animations...');
         
         if (typeof window === 'undefined' || !window.gsap || !window.ScrollTrigger || !window.Lenis) {
@@ -34,8 +38,16 @@ const GridAnimation = () => {
 
         const { gsap, ScrollTrigger, Lenis } = window;
         
-        // CRITICAL: Register ScrollTrigger plugin
-        gsap.registerPlugin(ScrollTrigger);
+        // CRITICAL: Register ScrollTrigger plugin GLOBALLY
+        try {
+            gsap.registerPlugin(ScrollTrigger);
+            console.log('ScrollTrigger registered successfully');
+        } catch (error) {
+            console.error('Error registering ScrollTrigger:', error);
+            return;
+        }
+
+        animationInitialized.current = true;
 
         // Define a variable that will store the Lenis smooth scrolling object
         let lenis;
@@ -43,11 +55,21 @@ const GridAnimation = () => {
         // Function to initialize Lenis for smooth scrolling
         const initSmoothScrolling = () => {
             console.log('Initializing smooth scrolling...');
+            
+            // Check if Lenis is already initialized
+            if (window.lenisInstance) {
+                console.log('Lenis already initialized');
+                return;
+            }
+
             // Instantiate the Lenis object with specified properties
             lenis = new Lenis({
                 lerp: 0.1,
                 smoothWheel: true
             });
+
+            // Store globally to prevent re-initialization
+            window.lenisInstance = lenis;
 
             // Update ScrollTrigger each time the user scrolls
             lenis.on('scroll', () => ScrollTrigger.update());
@@ -103,7 +125,7 @@ const GridAnimation = () => {
                     onUpdate: (self) => {
                         console.log('ScrollTrigger progress:', self.progress);
                     },
-                    markers: false // Set to true for debugging
+                    markers: false
                 }
             });
 
@@ -155,38 +177,30 @@ const GridAnimation = () => {
         });
     }
 
-    // Handle script loading
-    const handleScriptLoad = () => {
-        scriptsLoadedCount.current++;
-        console.log(`Script loaded: ${scriptsLoadedCount.current}/${totalScripts}`);
-        
-        if (scriptsLoadedCount.current === totalScripts) {
-            console.log('All scripts loaded, initializing...');
-            setTimeout(initializeAnimations, 500);
-        }
-    }
-
     useEffect(() => {
         // Add loading class to body
         document.body.classList.add('loading');
 
-        // Check if scripts are already loaded (in case of fast refresh)
-        const checkScriptsLoaded = () => {
+        // Wait for all scripts to load
+        const checkAndInit = () => {
             if (window.gsap && window.ScrollTrigger && window.Lenis && window.imagesLoaded) {
-                setTimeout(initializeAnimations, 100);
+                console.log('All libraries loaded');
+                initializeAnimations();
+            } else {
+                console.log('Waiting for libraries...');
+                setTimeout(checkAndInit, 200);
             }
         };
 
-        const timeoutId = setTimeout(checkScriptsLoaded, 1000);
+        // Start checking after a short delay
+        const timeoutId = setTimeout(checkAndInit, 500);
 
         return () => {
             clearTimeout(timeoutId);
             // Cleanup on unmount
-            if (typeof window !== 'undefined' && window.gsap) {
+            if (typeof window !== 'undefined' && window.gsap && window.ScrollTrigger) {
                 window.gsap.killTweensOf('*');
-                if (window.ScrollTrigger) {
-                    window.ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-                }
+                window.ScrollTrigger.getAll().forEach(trigger => trigger.kill());
             }
             document.body.classList.remove('loading');
         }
@@ -197,36 +211,40 @@ const GridAnimation = () => {
             {/* Load external scripts in proper order */}
             <Script
                 src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"
-                strategy="beforeInteractive"
-                onLoad={handleScriptLoad}
+                strategy="afterInteractive"
+                onLoad={() => {
+                    console.log('GSAP loaded');
+                    window.gsap = window.gsap || gsap;
+                }}
                 onError={() => console.error('Failed to load GSAP')}
             />
             <Script
                 src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"
-                strategy="beforeInteractive"
-                onLoad={handleScriptLoad}
+                strategy="afterInteractive"
+                onLoad={() => {
+                    console.log('ScrollTrigger loaded');
+                    if (window.gsap && window.ScrollTrigger) {
+                        window.gsap.registerPlugin(window.ScrollTrigger);
+                        console.log('ScrollTrigger registered in window');
+                    }
+                }}
                 onError={() => console.error('Failed to load ScrollTrigger')}
             />
             <Script
                 src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@latest/dist/lenis.min.js"
-                strategy="beforeInteractive"
-                onLoad={handleScriptLoad}
+                strategy="afterInteractive"
+                onLoad={() => console.log('Lenis loaded')}
                 onError={() => console.error('Failed to load Lenis')}
             />
             <Script
                 src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/5.0.0/imagesloaded.pkgd.min.js"
-                strategy="beforeInteractive"
-                onLoad={handleScriptLoad}
+                strategy="afterInteractive"
+                onLoad={() => console.log('imagesLoaded loaded')}
                 onError={() => console.error('Failed to load imagesLoaded')}
             />
 
             <main ref={mainRef}>
                 <div className="intro">
-                    {/* <h1 className="intro__title">
-                        <span className="intro__title-pre">On-Scroll</span>
-                        <span className="intro__title-sub">Perspective Grid Animations</span>
-                    </h1>
-                    <span className="intro__info">Scroll moderately to fully experience the animations</span> */}
                 </div>
 
                 <section className="content content--spacing">
