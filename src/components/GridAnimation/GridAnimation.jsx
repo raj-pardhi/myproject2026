@@ -1,10 +1,6 @@
 'use client'
 import React, { useRef, useEffect } from 'react'
 import Script from 'next/script'
-import gsap from 'gsap';
-import ScrollTrigger from 'gsap/dist/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
 
 const GridAnimation = () => {
     const mainRef = useRef(null)
@@ -38,6 +34,8 @@ const GridAnimation = () => {
 
         const { gsap, ScrollTrigger, Lenis } = window;
         
+        // CRITICAL: Register ScrollTrigger plugin
+        gsap.registerPlugin(ScrollTrigger);
 
         // Define a variable that will store the Lenis smooth scrolling object
         let lenis;
@@ -203,7 +201,12 @@ const GridAnimation = () => {
                 onLoad={handleScriptLoad}
                 onError={() => console.error('Failed to load GSAP')}
             />
-           
+            <Script
+                src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"
+                strategy="beforeInteractive"
+                onLoad={handleScriptLoad}
+                onError={() => console.error('Failed to load ScrollTrigger')}
+            />
             <Script
                 src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@latest/dist/lenis.min.js"
                 strategy="beforeInteractive"
