@@ -10,8 +10,8 @@ export default function Home() {
   return (
     <div>
       <Hero />
-      {/* <GridAnimation />
-      <Whatwedo />
+      <GridAnimation />
+      {/* <Whatwedo />
       <OurMethod />
       <Whoweare /> */}
     </div>
