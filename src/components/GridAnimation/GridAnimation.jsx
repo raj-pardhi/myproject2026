@@ -38,9 +38,6 @@ const GridAnimation = () => {
 
         const { gsap, ScrollTrigger, Lenis } = window;
         
-        // Register ScrollTrigger plugin
-        gsap.registerPlugin(ScrollTrigger);
-        console.log('ScrollTrigger registered');
 
         // Define a variable that will store the Lenis smooth scrolling object
         let lenis;
@@ -142,13 +139,11 @@ const GridAnimation = () => {
                     scale: 0.5
                 }, 0);
 
-            console.log('Timeline created');
         }
 
         // Apply animations to each grid
         const scroll = () => {
             grids.forEach((grid, index) => {
-                console.log(`Applying animation to grid ${index}`);
                 applyAnimation(grid);
             });
         }
@@ -159,7 +154,6 @@ const GridAnimation = () => {
             initSmoothScrolling();
             scroll();
             document.body.classList.remove('loading');
-            console.log('Initialization complete');
         });
     }
 
@@ -181,7 +175,6 @@ const GridAnimation = () => {
         // Check if scripts are already loaded (in case of fast refresh)
         const checkScriptsLoaded = () => {
             if (window.gsap && window.ScrollTrigger && window.Lenis && window.imagesLoaded) {
-                console.log('Scripts already loaded');
                 setTimeout(initializeAnimations, 100);
             }
         };
@@ -210,12 +203,7 @@ const GridAnimation = () => {
                 onLoad={handleScriptLoad}
                 onError={() => console.error('Failed to load GSAP')}
             />
-            <Script
-                src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"
-                strategy="beforeInteractive"
-                onLoad={handleScriptLoad}
-                onError={() => console.error('Failed to load ScrollTrigger')}
-            />
+           
             <Script
                 src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@latest/dist/lenis.min.js"
                 strategy="beforeInteractive"
