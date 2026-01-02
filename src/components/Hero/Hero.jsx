@@ -4,7 +4,7 @@ import { gsap } from 'gsap'
 import Whoweare from '../WHOWEARE/Whoweare';
 import ScrollTrigger from 'gsap/dist/ScrollTrigger';
 
-    gsap.registerPlugin(ScrollTrigger);
+  gsap.registerPlugin(ScrollTrigger);
 
 const Hero = () => {
   const [isExpanded, setIsExpanded] = useState(false)
