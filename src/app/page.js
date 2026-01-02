@@ -12,8 +12,8 @@ export default function Home() {
       <Hero />
       {/* <GridAnimation /> */}
       <Whatwedo />
-      {/* <OurMethod />
-      <Whoweare /> */}
+      <OurMethod />
+      <Whoweare />
     </div>
   );
 }
